@@ -10,8 +10,10 @@
 #define CTRL_KEY(k) ((k)& (0x1f))
 
 /*** data ***/
-struct termios org_termios;
-
+struct editorConfig {
+    struct termios org_termios;
+};
+struct editorConfig E;
 /*** terminal ***/
 void die(const char *s){
     write(STDOUT_FILENO, "\x1b[2J", 4);
@@ -21,12 +23,12 @@ void die(const char *s){
     exit(1);
 }
 void disableRawMode() {
-   if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &org_termios) == -1) die("tcsetattr"); 
+   if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.org_termios) == -1) die("tcsetattr"); 
 }
 void enableRawMode() {
-    if(tcgetattr(STDIN_FILENO, &org_termios) == -1) die("tcsetattr");
+    if(tcgetattr(STDIN_FILENO, &E.org_termios) == -1) die("tcsetattr");
     atexit(disableRawMode);
-    struct termios raw = org_termios;
+    struct termios raw = E.org_termios;
     raw.c_iflag &= ~(BRKINT|INPCK|ISTRIP|IXON| ICRNL);
     raw.c_oflag &= ~(OPOST);
     raw.c_cflag |= ~(CS8);
